@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>恋愛占い Ι ヨミナ | Link in Bio</title>
+    
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- サイト専用のカラーパレットとフォント設定 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        aurora: {
+                            dark: '#0a0d1e',
+                            purple: '#281b40',
+                            blue: '#162442',
+                        }
+                    },
+                    fontFamily: {
+                        mincho: ['"Shippori Mincho"', '"Noto Serif JP"', 'serif'],
+                        en: ['"Cormorant Garamond"', 'serif'],
+                    },
+                    boxShadow: {
+                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.2)',
+                        'glass-hover': '0 8px 32px 0 rgba(147, 112, 219, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Shippori+Mincho:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS for Animations & Aurora Background -->
+    <style>
+        body {
+            background-color: #0a0d1e;
+        }
+
+        .reveal-item {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1.2s cubic-bezier(0.2, 0.8, 0.2, 1), 
+                        transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        
+        .reveal-item.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 幻想的なオーロラ背景アニメーション */
+        .aurora-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+            /* 背景を少し明るい薄紫系に変更 */
+            background: linear-gradient(135deg, #18112e 0%, #2b1d4a 40%, #221840 70%, #11142b 100%);
+        }
+
+        .aurora-blob-1 {
+            position: absolute;
+            top: -20%;
+            left: -10%;
+            width: 70vw;
+            height: 70vh;
+            background: radial-gradient(circle, rgba(138, 90, 219, 0.35) 0%, transparent 65%);
+            filter: blur(60px);
+            animation: float-1 15s infinite ease-in-out alternate;
+        }
+
+        .aurora-blob-2 {
+            position: absolute;
+            bottom: -10%;
+            right: -20%;
+            width: 80vw;
+            height: 80vh;
+            background: radial-gradient(circle, rgba(90, 195, 219, 0.3) 0%, transparent 60%);
+            filter: blur(60px);
+            animation: float-2 20s infinite ease-in-out alternate-reverse;
+        }
+
+        .aurora-blob-3 {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60vw;
+            height: 60vh;
+            background: radial-gradient(circle, rgba(219, 90, 165, 0.25) 0%, transparent 60%);
+            filter: blur(60px);
+            animation: float-3 18s infinite ease-in-out alternate;
+        }
+
+        @keyframes float-1 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(5%, 5%) scale(1.1); }
+        }
+        @keyframes float-2 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-5%, -10%) scale(1.05); }
+        }
+        @keyframes float-3 {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            100% { transform: translate(-40%, -60%) scale(1.2); }
+        }
+
+        /* 星の瞬き */
+        .bg-stars {
+            background-image: 
+                radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,0.8), rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 60px 80px, rgba(255,255,255,0.4), rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 120px 150px, rgba(255,255,255,0.6), rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 180px 40px, rgba(255,255,255,0.3), rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 250px 250px;
+            opacity: 0.5;
+            animation: twinkle 4s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; }
+            100% { opacity: 0.6; }
+        }
+
+        /* シャインのような輝きを放つ三日月 */
+        .crescent-moon {
+            position: absolute;
+            top: 2%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px; /* 輝き(グロー)が切れないように大きめに確保 */
+            height: 300px;
+            z-index: 1;
+            pointer-events: none;
+            animation: moon-pulse 6s ease-in-out infinite alternate;
+        }
+
+        @keyframes moon-pulse {
+            0% { opacity: 0.8; transform: translateX(-50%) scale(0.95); filter: brightness(1); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1.05); filter: brightness(1.2); }
+        }
+    </style>
+</head>
+<body class="text-white min-h-screen relative font-mincho antialiased selection:bg-white/30 selection:text-white">
+
+    <!-- 背景装飾（オーロラ＆星空） -->
+    <div class="aurora-bg">
+        <div class="bg-stars absolute inset-0"></div>
+        <div class="crescent-moon">
+            <!-- SVGによる図形っぽさを消したリアルな発光表現 -->
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="moonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+                        <stop offset="50%" stop-color="#fef8e6" stop-opacity="0.9" />
+                        <stop offset="100%" stop-color="#d4bfff" stop-opacity="0.7" />
+                    </linearGradient>
+                    <filter id="moonGlow" x="-50%" y="-50%" width="200%" height="200%">
+                        <!-- 多重ブラーで美しい輝き（シャイン）を表現 -->
+                        <feGaussianBlur stdDeviation="3" result="blur1" />
+                        <feGaussianBlur stdDeviation="12" result="blur2" />
+                        <feGaussianBlur stdDeviation="25" result="blur3" />
+                        <feMerge>
+                            <feMergeNode in="blur3" />
+                            <feMergeNode in="blur2" />
+                            <feMergeNode in="blur1" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                    </filter>
+                </defs>
+                <!-- 月の形：斜めに傾けて配置 -->
+                <g transform="rotate(-15 100 100)">
+                    <path d="M 130 30 A 75 75 0 1 1 30 130 A 65 65 0 1 0 130 30 Z" fill="url(#moonGrad)" filter="url(#moonGlow)" />
+                </g>
+            </svg>
+        </div>
+        <div class="aurora-blob-1"></div>
+        <div class="aurora-blob-2"></div>
+        <div class="aurora-blob-3"></div>
+    </div>
+
+    <!-- メインコンテンツ -->
+    <main class="relative z-10 w-full max-w-lg mx-auto px-6 py-16 md:py-20 flex flex-col items-center min-h-screen justify-center">
+        
+        <!-- ==========================================
+             1. プロフィールエリア
+        =========================================== -->
+        <header class="flex flex-col items-center text-center mb-10 w-full">
+            <!-- REPLACE: プロフィール画像。href内のURLをご自身の画像URLに変更してください -->
+            <div class="reveal-item w-28 h-28 md:w-32 md:h-32 rounded-full p-[2px] bg-gradient-to-tr from-purple-400/40 via-blue-300/40 to-pink-300/40 mb-6 shadow-glass relative z-10">
+                <div class="w-full h-full rounded-full overflow-hidden bg-aurora-dark">
+                    <!-- 自動挿入：オーロラや星雲を連想させる画像 -->
+                    <img 
+                        src="DB20A5A4-1618-4D12-BB30-75F5ED28BC83.jpg" 
+                        alt="恋愛占い Ι ヨミナ" 
+                        class="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity duration-500 hover:scale-105 transform"
+                    >
+                </div>
+            </div>
+
+            <!-- お名前 -->
+            <h1 class="reveal-item text-2xl md:text-3xl font-semibold tracking-widest mb-4 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                恋愛占い Ι ヨミナ
+            </h1>
+
+            <!-- 装飾線 -->
+            <div class="reveal-item w-12 h-[1px] bg-white/40 mb-5"></div>
+
+            <!-- 自己紹介文 -->
+            <p class="reveal-item text-sm md:text-base leading-loose tracking-wide text-white/80 max-w-[90%] drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                悩める恋を叶える恋愛占い師。<br>
+                復縁、片思い、人に言えない恋が叶った<br class="hidden md:block">
+                報告が後を絶ちません——。
+            </p>
+        </header>
+
+
+        <!-- ==========================================
+             2. メインリンク一覧
+        =========================================== -->
+        <nav class="w-full flex flex-col gap-5 mb-3">
+            
+            <!-- リンクボタン1 -->
+            <a href="https://px.a8.net/svt/ejp?a8mat=4AXISB+B5VMVU+1SZG+TXGKX" target="_blank" rel="noopener noreferrer" 
+               class="reveal-item group relative w-full flex flex-col items-center justify-center py-5 px-6 rounded-2xl bg-white/10 backdrop-blur-lg border border-white/20 overflow-hidden transition-all duration-500 ease-out hover:bg-white/20 hover:border-white/40 hover:shadow-glass-hover hover:-translate-y-1">
+                <!-- ホバー時のふんわりとした光 -->
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                
+                <div class="relative z-10 flex flex-col items-center w-full">
+                    <span class="text-base md:text-lg tracking-wider text-white/90 group-hover:text-white transition-colors duration-300 drop-shadow-md mb-2 font-semibold text-center leading-snug">
+                        <span class="mr-1 opacity-90">🔮</span>あの人の本音を読み解きます
+                    </span>
+                    <span class="text-xs md:text-sm text-white/70 group-hover:text-white/90 transition-colors duration-300 text-center leading-relaxed">
+                        今あなたのことをどう思っているのか、<br class="md:hidden">これからどう発展していくのかなど視ていきます
+                    </span>
+                </div>
+                <span class="absolute top-0 right-0 bg-white/20 text-white text-[10px] px-3 py-1 rounded-bl-xl rounded-tr-2xl tracking-widest hidden md:block border-b border-l border-white/20 backdrop-blur-md">
+                    特別鑑定
+                </span>
+            </a>
+
+            <!-- リンクボタン2 -->
+            <a href="http://www.rentracks.jp/adx/r.html?idx=0.70857.375906.2440.3721&dna=57387" target="_blank" rel="noopener noreferrer" 
+               class="reveal-item group relative w-full flex flex-col items-center justify-center py-5 px-6 rounded-2xl bg-white/10 backdrop-blur-lg border border-white/20 overflow-hidden transition-all duration-500 ease-out hover:bg-white/20 hover:border-white/40 hover:shadow-glass-hover hover:-translate-y-1">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                
+                <div class="relative z-10 flex flex-col items-center w-full">
+                    <span class="text-base md:text-lg tracking-wider text-white/90 group-hover:text-white transition-colors duration-300 drop-shadow-md mb-2 font-semibold text-center leading-snug">
+                        <span class="mr-1 opacity-90">✨</span>悩める恋の行方を占います
+                    </span>
+                    <span class="text-xs md:text-sm text-white/70 group-hover:text-white/90 transition-colors duration-300 text-center leading-relaxed">
+                        この恋はどう進むのか、復縁できるのか...<br class="md:hidden">恋の行方を細かく視ていきます
+                    </span>
+                </div>
+            </a>
+
+        </nav>
+
+        <!-- プロモーション表記 -->
+        <p class="reveal-item text-[10px] md:text-xs text-white/40 tracking-wider text-center mb-12 w-full">
+            ※このサイトは一部プロモーションを含みます
+        </p>
+
+
+        <!-- ==========================================
+             3. SNSリンク
+        =========================================== -->
+        <div class="reveal-item flex flex-col items-center mb-16">
+            <a href="https://www.tiktok.com/@yuna_freewofk?_r=1&_t=ZS-94B755ZvS0S" target="_blank" rel="noopener noreferrer" 
+               class="group flex flex-col items-center gap-3 transition-transform duration-500 hover:scale-105 hover:-translate-y-1">
+                <!-- TikTok アイコン (SVG) -->
+                <div class="w-12 h-12 rounded-full border border-white/30 flex items-center justify-center bg-white/10 backdrop-blur-sm group-hover:border-white/60 group-hover:bg-white/20 group-hover:shadow-glass-hover transition-all duration-500">
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-white/80 group-hover:text-white transition-colors duration-300">
+                        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                    </svg>
+                </div>
+                <span class="text-xs tracking-widest text-white/70 group-hover:text-white transition-colors duration-300">
+                    TikTokで占い動画を見る
+                </span>
+            </a>
+        </div>
+
+
+        <!-- ==========================================
+             4. フッター
+        =========================================== -->
+        <footer class="reveal-item w-full text-center mt-auto">
+            <p class="text-[11px] tracking-widest font-en text-white/40 uppercase">
+                &copy; 2026 恋愛占い Ι ヨミナ. All Rights Reserved.
+            </p>
+        </footer>
+
+    </main>
+
+    <!-- アニメーション用スクリプト -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const revealItems = document.querySelectorAll('.reveal-item');
+            
+            // よりゆったりとした優雅な出現アニメーション
+            revealItems.forEach((item, index) => {
+                setTimeout(() => {
+                    item.classList.add('is-visible');
+                }, 180 * index + 100);
+            });
+        });
+    </script>
+</body>
+</html>
